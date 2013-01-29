@@ -416,20 +416,26 @@
             }
         },
 
-        // This is a copy of the zIndex function of UI core 1.8.??
-        // Copied in the timepicker to stay backward compatible.
+        // This is an enhanced copy of the zIndex function of UI core 1.8.?? For backward compatibility.
+        // Enhancement returns maximum zindex value discovered while traversing parent elements, 
+        // rather than the first zindex value found. Ensures the timepicker popup will be in front,
+        // even in funky scenarios like non-jq dialog containers with large fixed zindex values.
         _getZIndex: function (target) {
-            var elem = $( target ), position, value;
-            while ( elem.length && elem[ 0 ] !== document ) {
-                position = elem.css( "position" );
-                if ( position === "absolute" || position === "relative" || position === "fixed" ) {
-                    value = parseInt( elem.css( "zIndex" ), 10 );
-                    if ( !isNaN( value ) && value !== 0 ) {
-                        return value;
+            var elem = $(target);
+            var maxValue = 0;
+            var position, value;
+            while (elem.length && elem[0] !== document) {
+                position = elem.css("position");
+                if (position === "absolute" || position === "relative" || position === "fixed") {
+                    value = parseInt(elem.css("zIndex"), 10);
+                    if (!isNaN(value) && value !== 0) {
+                        if (value > maxValue) { maxValue = value; }
                     }
                 }
                 elem = elem.parent();
             }
+
+            return maxValue;
         },
 
         /* Refresh the time picker
